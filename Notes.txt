@@ -1,0 +1,25 @@
+React JS 04-01-2024 
+
+>>Day 1
+
+2. Namaste React Web Series code repositoryhttps://github.com/namastedev/namaste-react
+3. NetflixGPT Project Github repository -
+https://github.com/akshaymarch7/netflix-gpt
+4. YouTube Project GitHub repository -
+https://github.com/akshaymarch7/namaste-youtube
+
+React CDN:
+react library(code) is hosted and we can pull the data and use it from there into our local system.
+
+
+
+
+
+
+
+
+==========================================================================================================
+
+
+
+
