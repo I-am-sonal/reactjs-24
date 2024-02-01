@@ -1,0 +1,192 @@
+Notes for episode 9 onwards starts:
+
+pending tasks:
+Grocery lazy loading is not working - please check
+==========================================================================================================
+31-01-2024
+
+Episode -09 | Optimizing our App
+
+How to write the code in a better way:
+custom Hooks:
+Single responsibility principle:
+for example header.js should have responsibility of showing only header part on the webpage.
+
+If we have multiple responsibility in a single component, we should divide it into different components.
+
+************why to use custom hook:
+-> modular/testable code: breaks the code into small small different components.
+-> so that we can catch the bug very easily.
+-> you can reusable the code
+-> maintainble code 
+-> keep your code light and readable.
+
+Hooks - spl js function given by React
+its a utility function, helper function
+create seprate file for seprate hook
+always start hook name with "useHookName" - use word is not madatory, its best way to use it.
+but most of the projects follow linter, so if you not follow that convension.
+always use the convension or code that library follows.
+its a recommend way to use custom hook with "use" word.
+
+
+example of extracting the fetching API data from RestaurantMenu.js to 
+custom hook -> useRestaurantMenu.js
+
+RestaurantMenu.js =>
+
+const RestaurantMenu = () => {
+
+    const resInfo = useRestaurantMenu(resId); 
+}
+
+API code add in custom hook:
+
+import { useEffect } from "react";
+import { MENU_API } from "../utils/constants";
+
+
+const useRestaurantMenu = (resId) => {
+
+    const [resInfo, setResInfo] = useState(null);
+    
+    useEffect(() => {
+        fetchMenu();
+    }, []);
+
+    
+    const fetchMenu = async () => {
+        const data = await fetch(MENU_API + resId);
+        const json = await data.json();
+
+        console.log(json);
+        setResInfo(json.data);
+    };
+
+    return resInfo;
+}
+
+export default useRestaurantMenu;
+
+
+-------------------------------------------------------------------
+
+hook to check status is online/offline:
+window object gives this facility to check the status of the user if online/offline
+
+body.js
+
+const onlineStatus = useOnlineStatus();
+
+	if(onlineStatus === false) return <h1>Your Offline..Please check your network connection...!!!!</h1>;
+
+useOnlineStatus.js
+
+import { useEffect, useState } from "react";
+
+const useOnlineStatus = () => {
+
+    const [onlineStatus, setOnlineStatus] = useState(true);
+
+    useEffect(() => {
+        window.addEventListener("offline", () => {
+            setOnlineStatus(false);
+        });
+        window.addEventListener("online", () => {
+            setOnlineStatus(true);
+        });
+    }, []);
+
+    return onlineStatus;
+}
+
+export default useOnlineStatus;
+
+----------------------------------------------------------------------------------------------------
+header show onlineStatus:
+
+const onlineStatus = useOnlineStatus();
+
+<li>Online Status: {onlineStatus ? "✅" : "🔴" }</li>
+
+----------------------------------------------------------------------------------------------------
+How to optimize Js file:
+
+Chunking, 
+Code splitting - 
+dynamic bundling
+dynamic import
+lazy loading
+ondemand loading
+
+we will make smaller bundles of the JS files used for the components.
+you have to make your application into smaller logical chunks, split your code.
+
+use case - you can make bundle for different categories on the page.
+divide the page into different parts.
+so that will create smaller applications into a 1 big application
+so that you dont put a load onto single bundle,
+so that the request for your js file does not become so heavy so that it takes too much time to get into the broswer.
+
+----------------------------------------------------------------------------------------------------
+How to create seprate bundle for Grocery.js store: (how to distribute application into smaller chunks)
+=> using lazy loading(on demand loading) 
+- (it will not have data directly, but using lazy loading when required.)
+ so that initially our App will not have Grocery data, but once we click on Grocery link we will get the Grocery data
+ our app.
+
+
+lazy() - its a function given by React.
+import it using named import
+
+code:
+import React, {lazy} from "react";
+// import Grocery from "./components/Grocery"; (no need to use it, comment it out)
+
+const Grocery = lazy(() => import("./components/Grocery")); // dynamic import
+----------------------------------------------------------------------------------------------------
+
+at the time of clicking Grocery link, it will not have any data,
+meanwhile to show something on the page -> we call suspense
+hence wrap it inside suspense
+it will give it a placeholder named "fallback" for what should react render when the code is not available.
+(basically kind of a loading screen)
+
+==========================================================================================================
+31-01-2024
+
+Episode-10 | Jo Dikhta Hai, Vo Bikta Hai
+
+3 ways to write Css: (library has prebuild components, we can import it in our app)
+1) using index.css or custom.css
+2) sass and scss or less
+3) styled components - As you can see, styled-components lets you write actual CSS in your JavaScript. 
+This means you can use all the features of CSS you use and love, including (but by far not limited to) 
+media queries, all pseudo-selectors, nesting, etc.
+4)material UI - React component library
+5) boostrap
+6)Ant Design - An enterprise-class UI design language and React UI library
+7) Chakra UI -Chakra UI is a simple, modular and accessible component library 
+that gives you the building blocks you need to build your React applications.
+8) Tailwind CSS (behind the scenes it used PostCSS - to transform css with JavaScript)- css framework - A utility-first CSS framework packed with classes like flex, pt-4, 
+text-center and rotate-90 that can be composed to build any design, directly in your markup.
+
+Tailwind Css:
+
+installation using parcel framework guide:
+npm install -D tailwindcss postcss
+npx tailwindcss init
+
+to understand Tailwind we use PostCSS.
+
+use case:
+to add hardcoded value which does not exist - 
+css class use - "w-[200px]"
+
+for showing suggestion while writing use - ctrl + spacebar
+
+pros:
+we dont have to move between files
+
+cons:
+JSX/html code looks agly if we have too many css written to the className
