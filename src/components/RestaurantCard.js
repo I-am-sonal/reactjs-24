@@ -7,9 +7,7 @@ const RestaurantCard = (props) => {
     const {cloudinaryImageId, name, areaName, cuisines, costForTwo, avgRating, sla} = resData?.info;
 
     return (
-        <div className="res-card w-52 mx-2" style={{
-            backgroundColor: "#f0f0f0"
-        }}>
+        <div className="res-card w-52 mx-2 bg-gray-100 hover:bg-green-300">
             <div className="img-container">
                 <img className="res-log" alt="res-logo" src={CDN_URL + cloudinaryImageId}/>
             </div>
@@ -18,9 +16,24 @@ const RestaurantCard = (props) => {
             <h4>{cuisines.join(", ")}</h4>
             <h4>{costForTwo}</h4>
             <h4>{"avgRatingString " +avgRating}</h4> 
-            <h4>{sla?.slaString}</h4>                       
+            <h4>{sla?.slaString}</h4> 
         </div>
     )
+};
+
+// Higher order component
+// Input -> RestaurantCard => gives => RestaurantCardPromoted
+
+
+export const withPromotedLabel = (RestaurantCard) => {
+    return (props) => { 
+        return (
+            <div>
+                <label className="absolute bg-black text-white">Veg</label>
+                <RestaurantCard {...props}/>
+            </div>
+        )
+    }
 }
 
 export default RestaurantCard;

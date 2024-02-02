@@ -14,7 +14,7 @@ const About = lazy(() =>import("./components/About"));
 
 const AppLayout = () => {
     return (
-        <div className="app">
+        <div className="app text-center inline-block w-[100%]">
             <Header />
             <Outlet />
         </div>

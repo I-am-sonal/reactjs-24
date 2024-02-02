@@ -187,6 +187,159 @@ for showing suggestion while writing use - ctrl + spacebar
 
 pros:
 we dont have to move between files
+it is lightweight. - when parcel uses the bundle to minify the file, it will only take the css that is required.
+(tailwindcss has 10000 of prebuild classes in it, it will only use the classes that are used on the webpage)
+
+m-4 - class is used all over the page, but it will import it only once on the page.
+it keeps the bundle size small.
+
+
 
 cons:
 JSX/html code looks agly if we have too many css written to the className
+
+==========================================================================================================
+1-02-2024
+
+Episode-11 | Data is the New Oil
+
+Higher order components:
+Its a function that takes a component and returns a component
+(enhances, modifiles, add some features into the component)
+its a pure function, it does not change the main component, it will enhances or adds to the function
+and make new function from it.
+it will not change the main component directly.
+
+// Higher order component
+// Input -> RestaurantCard => gives => RestaurantCardPromoted
+
+RestaurantCard.js
+export const withPromotedLabel = (RestaurantCard) => {
+    return (props) => { //2 times return used because, it will return another function
+        return (
+            <div>
+                <label className="absolute bg-black text-white">Veg</label>
+                <RestaurantCard {...props}/> // spread operator will receive all the data passed thorugh the props
+            </div>
+        )
+    }
+}
+----------
+
+Body.js
+import RestaurantCard, {withPromotedLabel} from "./RestaurantCard";
+
+const RestaurantCardPromoted = withPromotedLabel(RestaurantCard);
+
+<div className="res-container flex flex-wrap">
+				{
+					filteredRestaurant.map((restaurant) => (
+						<Link key={restaurant?.info?.id} to={"/restaurant/" + restaurant?.info?.id}>
+							{
+							restaurant?.info.veg ? 
+							(<RestaurantCardPromoted resData={restaurant} />) :
+							(<RestaurantCard resData={restaurant} />)
+					}
+						</Link>
+					))
+				}
+			</div>
+
+==========================================================================================================
+2-02-2024
+
+Episode-11 | Data is the New Oil
+
+Controlled and uncontrolled components:
+
+Lifting the state up:
+----------------------------------------------------------------------------------------------------
+React Dev Tools:
+inspect check -> tabs -> 
+components and profiler:
+it shows all the components on the page with UI layer at the left and data layer at the right side
+extra components/packages will also be shown that are added by react router.
+e.g. DataRouter.Provider
+
+our code starts from AppLayout
+
+profiler - records the actions of a user.
+colorfull strips means these components are affected in that action done.
+
+----------------------------------------------------------------------------------------------------
+
+React has 2 layers: UI(JSX) + Data(JavaScript code)
+
+Accordion example:
+import { useState } from "react";
+import ItemList from "./ItemList";
+
+const RestaurantCategory = ({data}) => {
+
+    const [showItems, setShowItems] = useState(false);
+
+    const handleClick = () => {
+
+      setShowItems(!showItems);
+    }
+    return (
+        <div className="restaurant-category-box content-center text-left">
+            <div className="accordion-title w-[100%] justify-between flex acc-active" onClick={handleClick}>
+                <span className="bg-gray-500 w-[100%] mb-2">{data.title}
+                ({data.itemCards.length})
+                </span><span>↓</span>
+            </div>
+            <div className="accordion-body w-[100%]">
+                {/* Accordion body */}
+                {showItems && <ItemList items={data.itemCards}/>}
+            </div>
+        </div>
+    )
+}
+
+export default RestaurantCategory;
+
+----------------------------------------------------------------------------------------------------
+Example: 
+Lifting the state up: to give power of the component to its parent component
+
+parent will control their children components
+
+Accordion when click 1 - others should get closed.
+
+uncontrolled component=> All RestaurantCategory has its own state. 
+1st accordion is performing its own state change and its anaware of the function of the other accordion.
+
+We will give power to manage all the RestaurantCategory to its parent component => RestaurantMenu
+
+Controlled component => RestaurantCategory Now 
+
+RestaurantMenu.js => parent component
+
+div className="category-accordion bg-gray-100">
+                {itemCategories.map((category) =>(
+                <RestaurantCategory 
+                key={category.card?.card.title} 
+                data={category.card?.card}
+                showItems={false} // this will be passed to parent
+                />
+                ))}
+
+                -------------------
+
+
+RestaurantCategory.js => child component
+this will be removed from individual RestaurantCategory component =>
+
+
+const RestaurantCategory = ({data, showItems}) => { //add showItems
+
+    const [showItems, setShowItems] = useState(false); //remove
+
+    const handleClick = () => {//remove
+
+
+      setShowItems(!showItems);//remove
+
+    }
+    -------------------
