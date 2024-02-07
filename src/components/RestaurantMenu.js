@@ -6,10 +6,12 @@ import RestaurantCategory from "./RestaurantCategory";
 
 const RestaurantMenu = () => {
     
+    const dummy = "dummy data";
+
     const [showIndex, setShowIndex] = useState(null);
 
     const {resId} = useParams();
-    console.log(resId);
+    //console.log(resId);
 
     const resInfo = useRestaurantMenu(resId); 
 
@@ -20,13 +22,13 @@ const RestaurantMenu = () => {
     const { name, city, cuisines, costForTwoMessage } = resInfo?.cards[0]?.card?.card?.info;
 
     const {itemCards} = resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards[2]?.card?.card;
-    console.log(itemCards);
+   // console.log(itemCards);
 
     const itemCategories = resInfo?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
         (c) => 
         c.card?.card?.["@type"] === "type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
         );
-    console.log(itemCategories);
+    //console.log(itemCategories);
 
    
 
@@ -44,6 +46,7 @@ const RestaurantMenu = () => {
                 data={category.card?.card}
                 showItems={index === showIndex ? true : false}
                 setShowIndex={() => setShowIndex(index)}
+                dummy={dummy}
                 />
                 ))}
             </div>

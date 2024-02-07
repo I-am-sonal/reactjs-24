@@ -1,7 +1,17 @@
+import { useDispatch } from "react-redux";
+import { addItem } from '../utils/cartSlice';
 import { CDN_URL } from "../utils/constants";
 
-const ItemList = ({items}) => {
-    
+const ItemList = ({items, dummy}) => {
+
+    const dispatch = useDispatch();
+
+    const handleAddItem = (item) => {
+        //Dispatch an action
+
+        dispatch(addItem(item));
+    }
+    //console.log(dummy);
     return (
         <div className="item-lists border-b-2 border-black">
             {items.map((item) => (
@@ -14,9 +24,8 @@ const ItemList = ({items}) => {
                     <div className="right-box w-32 relative">
                         <img src={CDN_URL+item.card.info.imageId}/>
                         <div className="add-item absolute bottom-0 left-7">
-                            <span className="bg-white shadow-lg left-14 rounded-lg">Add +</span>
-                        </div>
-                        
+                            <span className="bg-white shadow-lg left-14 rounded-lg" onClick={() => handleAddItem(item)}>Add +</span>
+                        </div>                       
                     </div>
                 </div>
             )

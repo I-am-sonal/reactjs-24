@@ -2,6 +2,22 @@ Notes for episode 9 onwards starts:
 
 pending tasks:
 Grocery lazy loading is not working - please check
+revision - lifting the state up
+normal accordion
+toggle accordion
+pending - on click of same accordion, it should get closed as well
+pending - RTK query (for fetching data) earlier we use middleware and thung
+with react toolkit we have RTK query to make the api call
+check RTK query quick start page from website 
+
+episode 13 -test cases:
+toBeInTheDocument() is not showing all the methods in the dropdown
+
+difference between below 3 calls:
+onClick={handleAddItem}
+onClick={() => handleAddItem(item)} // callback function
+onClick={handleAddItem(item)} // calling a function right a way
+
 ==========================================================================================================
 31-01-2024
 
@@ -300,11 +316,21 @@ const RestaurantCategory = ({data}) => {
 export default RestaurantCategory;
 
 ----------------------------------------------------------------------------------------------------
-Example: 
+https://react.dev/learn/sharing-state-between-components#lifting-state-up-by-example
+
+How to share state between components by lifting it up
+What are controlled and uncontrolled components
+
+Recap:
+When you want to coordinate two components, move their state to their common parent.
+Then pass the information down through props from their common parent.
+Finally, pass the event handlers down so that the children can change the parent’s state.
+It’s useful to consider components as “controlled” (driven by props) or “uncontrolled” (driven by state).
+
 Lifting the state up: to give power of the component to its parent component
 
 parent will control their children components
-
+Example: 
 Accordion when click 1 - others should get closed.
 
 uncontrolled component=> All RestaurantCategory has its own state. 
@@ -316,30 +342,867 @@ Controlled component => RestaurantCategory Now
 
 RestaurantMenu.js => parent component
 
-div className="category-accordion bg-gray-100">
-                {itemCategories.map((category) =>(
+const RestaurantMenu = () => {
+    
+    const [showIndex, setShowIndex] = useState(null);
+
+     return (
+<div className="category-accordion bg-gray-100">
+                {itemCategories.map((category, index) =>(
+                    // controlled component
                 <RestaurantCategory 
                 key={category.card?.card.title} 
                 data={category.card?.card}
-                showItems={false} // this will be passed to parent
+                showItems={index === showIndex ? true : false}
+                setShowIndex={() => setShowIndex(index)}
                 />
                 ))}
+            </div>
+     )
+
 
                 -------------------
 
 
 RestaurantCategory.js => child component
-this will be removed from individual RestaurantCategory component =>
+import { useState } from "react";
+import ItemList from "./ItemList";
 
+const RestaurantCategory = ({data, showItems, setShowIndex}) => {
 
-const RestaurantCategory = ({data, showItems}) => { //add showItems
+    //const [showItems, setShowItems] = useState(false); // no need
 
-    const [showItems, setShowItems] = useState(false); //remove
+    const handleClick = () => {
 
-    const handleClick = () => {//remove
-
-
-      setShowItems(!showItems);//remove
-
+        setShowIndex();
     }
-    -------------------
+    return (
+        <div className="restaurant-category-box content-center text-left">
+            <div className="accordion-title w-[100%] justify-between flex acc-active" onClick={handleClick}>
+                <span className="bg-gray-500 w-[100%] mb-2">{data.title}
+                ({data.itemCards.length})
+                </span><span>↓</span>
+            </div>
+            <div className="accordion-body w-[100%]">
+                {/* Accordion body */}
+                {showItems && <ItemList items={data.itemCards}/>}
+            </div>
+        </div>
+    )
+}
+
+export default RestaurantCategory;
+==========================================================================================================
+3-02-2024
+
+Episode-11 | Data is the New Oil
+
+Props driling
+
+React has one way data follow
+top to bottom -> parent to children
+
+RestaurantMenu.js -> Main parent component
+RestaurantCategory.js -> intermidiate parent
+ItemList.js -> children
+
+
+example:
+how to pass data from RestaurantMenu to ItemList thorugh RestaurantCategory
+
+RestaurantMenu.js 
+
+const RestaurantMenu = () => {
+    
+    const dummy = "dummy data";
+
+     return (
+        <div className="category-accordion bg-gray-100">
+                {itemCategories.map((category, index) =>(
+                    // controlled component
+                <RestaurantCategory 
+                key={category.card?.card.title} 
+                data={category.card?.card}
+                showItems={index === showIndex ? true : false}
+                setShowIndex={() => setShowIndex(index)}
+                dummy={dummy} // pass as props
+                />
+                ))}
+            </div>
+     )
+
+     -------------
+RestaurantCategory.js
+
+const RestaurantCategory = ({data, showItems, setShowIndex, dummy}) => {
+        return (
+        <div className="restaurant-category-box content-center text-left">
+            
+                {/* Accordion body */}
+                {showItems && <ItemList items={data.itemCards} dummy={dummy}/>}
+        </div>
+    )
+}
+
+-------------
+ItemList.js
+
+const ItemList = ({items, dummy}) => {
+    console.log(dummy);
+}
+-----------------------------------------------------------------
+problem with react props:
+but if we have too many nesting and if we wants to pass data from top parent to last child
+(intermidiate level of components dont even use it , it only passes the data thorugh props):
+its not a best way to pass the data its called as props driling.
+we are drilling the data to down and then use the data in children
+
+solution:
+React context: we can avoid Props drilling
+Context lets the parent component make some information available to any component in the tree below it
+—no matter how deep—without passing it explicitly through props.
+whenever data is used in multiple places, then use context for it.
+
+
+utils -> UserContext.js
+its a kind of central global data used in object (common data used thorughout the website)
+hence added inside utils which store loggedin user data info.
+
+2 ways of context (read and update the data)
+
+2 read the context:
+react gives hook for context:
+to create context => import { createContext } from "react";
+to use context => import { useContext } from "react";
+
+example:
+UserContext.js
+import { createContext } from "react";
+
+const UserContext = createContext({
+    loggedInUser: "Default User",
+});
+
+export default UserContext;
+
+----------
+Header.js
+import { useEffect, useState, useContext } from "react";
+import UserContext from "../utils/UserContext";
+
+const Header = () => {
+
+    const {loggedInUser} = useContext(UserContext);
+
+    return (
+        <li className="px-4 font-bold">{loggedInUser}</li>
+
+    )
+}
+---------------------------------------------------------------------------------
+context is a hook, we cannot use it in class based components:
+
+how to use it in class based component:
+<UserContext.Consumer> component
+react gives the superpower and you can consume it in your class based component.
+
+About.js
+import UserContext from "../utils/UserContext";
+
+ return (
+            <div>
+                <h1>About Page Class</h1>
+                <h3>LoggedIn User:
+                    <UserContext.Consumer>
+                        {({loggedInUser}) => <h1 className="font-bold">{loggedInUser}</h1>}
+                    </UserContext.Consumer>
+                </h3>
+                <User name={"Sonal Bajage functional"}/>
+            </div>
+        )
+---------------------------------------------------------------------------------
+to update the context value:
+we need to wrap whole app inside <UserContext.Provider> to update the value everywhere.
+
+Example:
+
+App.js
+import UserContext from "./utils/UserContext";
+
+const AppLayout = () => {
+
+    
+    const [userName, setUserName] = useState();
+
+    useEffect(() => {
+        //make API call and send username and password
+        const data = {
+            name: "Sonal B",
+        };
+
+        setUserName(data.name);
+
+    },[]);
+
+
+    return (
+        <UserContext.Provider value={{loggedInUser: userName}}>
+        <div className="app text-center inline-block w-[100%]">
+            <Header />
+            <Outlet />
+        </div>
+        </UserContext.Provider>
+    )
+}
+
+---------------------------------------------------------------------------------
+
+Example: on change of Input field name should update in the loggedInUser also:
+
+we can pass setUserName as : <UserContext.Provider value={{loggedInUser: userName, setUserName}}>
+
+App.js
+const AppLayout = () => {
+
+    
+    const [userName, setUserName] = useState();
+
+    useEffect(() => {
+        //make API call and send username and password
+        const data = {
+            name: "Sonal B",
+        };
+
+        setUserName(data.name);
+
+    },[]);
+
+
+    return (
+        <UserContext.Provider value={{loggedInUser: userName, setUserName}}>
+
+
+        --------------
+
+Body.js
+
+const Body = () => {
+
+	const { loggedInUser, setUserName } = useContext(UserContext);
+
+    <div className="filter-btn px-4 py-2 m-4">
+				<label>User Name: </label>
+				<input className="border border-black p-2" value={loggedInUser}
+				onChange={(e) => {setUserName(e.target.value)}}/>
+			</div>
+}
+
+
+you can use any large scale application using Context.
+=> theme context, theme context, cart context, user context.
+
+==========================================================================================================
+3-02-2024
+
+Episode-12 | Let's Build Our Store
+
+How to manage state/ data using Redux:
+
+Redux:
+Redux is an open-source JavaScript library for managing and centralizing application state.
+Its a Predictable State Container for JS Apps
+React and Redux are different libraries.
+it is used with other applications as well but heavily used with React.
+
+advantages:
+=>used to manage state in the store.
+=>easy to debug the code. (extension: Redux devtools)
+
+Redux is not mandatory in every project you build.
+In large scale application, where data is heavily used, and data is read and write. => Redux is used.
+Lots of data is transfered between the components => Redux is used.
+Use it only when its required.
+
+Redux is not only the library used to manage state,
+zustand library can also be used.
+
+
+Other Libraries from the Redux Team:
+1) React-Redux
+2) Redux Toolkit - Newer way of writing Redux. Its a standard way of writing Redux(RTK)
+
+Redux Architecture:
+
+Redux store is big object which is kept in central global space.
+In application, any component can access the data , read and write the data from it.
+to avoid making the obj too big with lot of data => we have slices of Redux store.
+logical partition = slices => cart slice, theme (dark, light) slice, loggedInUser slice
+
+example: to read data ->
+when we click on add item, it will dispatch an (action), call a reducer function 
+and that function internally modifies the cart.
+when we click on add item, it will dispatch an (action), call a reducer function 
+and that function internally updates the slice of the Redux store.
+it will not directly modifies it.
+the function is known as reducer.
+
+example: to write data ->
+selector is used to read the data from store and then it modifies the data into the cart.
+Header component is subscribed to the store.(its in sync with the store)
+if the data in the store changes, the header cart will automatically updates the value in it.
+
+
+==========================================================================================================
+4-02-2024
+
+Episode-12 | Let's Build Our Store
+
+1) Install @reduxjs/toolkit and react-redux
+
+create  configureStore using "@reduxjs/toolkit" library:
+
+import { configureStore } from "@reduxjs/toolkit";// given by RTK toolkit
+
+2)to make connection with react app:
+app.js
+import { Provider } from "react-redux";// given by react-dedux to make connection to the react.
+
+wrapp app inside <Provider store={}/>
+it takes store as a props
+
+(you can provide redux functionality to specific small portion of your app and not whole application as well)
+
+App.js
+
+import { Provider } from "react-redux";
+import appStore from "./utils/appStore";
+
+return (
+        <Provider store={appStore}>
+            <UserContext.Provider value={{loggedInUser: userName, setUserName}}>
+            <div className="app text-center inline-block w-[100%]">
+                <UserContext.Provider value={{loggedInUser: "HeaderSonal"}}>
+                <Header />
+                </UserContext.Provider>
+
+                <Outlet />
+            </div>
+            </UserContext.Provider>
+        </Provider>
+    )
+
+3)create slices inside the store using RTK toolkit:
+const appStore = configureStore();
+ it contains all the reducers of the entire big app.
+
+ each slice will have its own reducer:
+
+appStore.js
+
+ import { configureStore } from "@reduxjs/toolkit";
+import cartReducer from "./cartSlice";
+
+const appStore = configureStore({
+    reducer: {
+        cart: cartReducer,
+    }
+});
+
+export default appStore;
+
+------------------------------------------------
+cartSlice.js
+
+import { createSlice } from "@reduxjs/toolkit";
+
+const cartSlice = createSlice({
+    name: "cart",
+    initialState: {
+        items: [],
+    },
+    reducers: {
+        addItem: (state, action) => {
+            //mutating the state here
+            state.items.push(action.payload);
+        },
+        removeItem: (state, action) => {
+            state.items.pop();
+        },
+        clearCart: (state, action) => {
+            state.items.length = 0; // []
+        },
+    },
+});
+
+export const { addItem, removeItem, clearCart } = cartSlice.actions;
+
+export default cartSlice.reducer;
+
+---------------------------------------------------------------------
+selector - used to read the value in the cart
+
+selector is a hook in react. - import { useSelector } from "react-redux";
+
+Header.js
+
+import { useSelector } from "react-redux";
+
+    //subscribing to the store using a selector
+    const cartItems = useSelector((store) => store.cart.items);
+
+return (
+    <li className="px-4">Cart - ({cartItems} items)</li>
+)
+
+
+
+------------------------------------------------
+How to show api data items into the cart:
+dispatch the data example:
+
+use dispatch hook from react-redux library.
+import { useDispatch } from "react-redux";
+
+--------------------
+Interview question:
+
+selector:
+when you are using selector, make sure your are subscribing to the right portion of the code
+
+    const cartItems = useSelector((store) => store.cart.items);
+//same as
+
+    const store = useSelector((store) => store);  
+    const cartItems = store.cart.items;
+
+// this code is less efficient..you dont want to subscribed to the whole store 
+if something is happening in userslice then its not needed to affect the cartslice.
+hence use     
+const cartItems = useSelector((store) => store.cart.items);
+
+Only subscribe to the specific portion.
+--------------------
+when we create multiple slices use  plural keyword as "reducers"
+use:
+
+reducers: {
+        addItem: (state, action) => {
+            //mutating the state here
+            state.items.push(action.payload);
+        },
+        removeItem: (state, action) => {
+            state.items.pop();
+        },
+        clearCart: (state, action) => {
+            state.items.length = 0; // []
+        },
+    },
+
+    when creating configuration, use word "reducer", 1 reducer for the whole app,
+    that can contain multiple reducers
+
+    const appStore = configureStore({
+    reducer: {
+        cart: cartReducer,
+    }
+});
+
+
+---------------------------------------------------------
+vanilla (older) Redux 
+=> dont mutate state, returning was madatory
+
+const newState = [...state];
+newState.items.push(action.payload);   // in current version of redux toolkit, redux uses immer library to do this behind the scenes.
+return newState;
+
+Redux Toolkit uses immer behind the scenes 
+=> we have to mutate the state.
+
+addItem: (state, action) => {
+            //mutating the state here
+            state.items.push(action.payload);
+        },
+
+
+immer library = finds difference between original state and mutated state and gives new state which is immutable.
+(new copy of the state)
+
+
+cartslice.js
+
+import { createSlice, current } from "@reduxjs/toolkit";
+
+const cartSlice = createSlice({
+    name: "cart",
+    initialState: {
+        items: [],
+    },
+    reducers: {
+        addItem: (state, action) => {
+            //mutating the state here
+            state.items.push(action.payload);
+        },
+        removeItem: (state, action) => {
+            state.items.pop();
+        },
+        //original state = {items: ['pizza']};
+        clearCart: (state, action) => {
+            //console.log(state); //['pizza'];it will show proxyobject (not show proper data)
+           // console.log(current(state)); // hence use current(state)
+            //state = []; // the local variable has been updated, state = ['pizza']; will remain as it is. original state = ['pizza'];
+           // console.log(state);
+
+            state.items.length = 0; // []
+            //return []; // or you  can return and empty string.
+        },
+        //or
+        //clearCart: (state, action) => {
+            //return {items: []}; // or you  can return and empty string.
+            // this new object will be replaced inside original state = {items: []}
+        //},
+    },
+});
+
+export const { addItem, removeItem, clearCart } = cartSlice.actions;
+
+export default cartSlice.reducer;
+
+(if we wants to modify the original data use:
+state.items.length = 0;
+)
+RTK - either mutate the existing state or return a new state.
+
+
+-----------------------------------------------
+extension: Redux DevTools
+using this extension we can simulate the behaviour of the user journey.
+
+==========================================================================================================
+05-01-2024
+
+Episode-13 | Time for Test
+
+How to write test cases for our project:
+
+what are the types of developer testing:
+1)Unit testing. - testing react component in isolation.
+
+2)Integration testing - testing the Integration of the component
+so many components involved and talk to each other. so we develop flow in action of our react application.
+there are too many events are happening in this.
+
+3)End to end (e2e) testing - testing the website as soon as user lands the website to user leaves the website.
+we will test all the flows. simulating the user journey across the application.
+
+End-to-end testing tools:
+it will test your whole application flow.
+
+Cypress
+Puppeteer
+Selenium
+
+Libraries used for testing:
+1) React testing library - 
+
+one of the most standard library.
+its a wrapper for DOM testing library.
+
+React Testing Library builds on top of DOM Testing Library by adding APIs for working with React components.
+Projects created with Create React App have out of the box support for React Testing Library. 
+If that is not the case, you can add it via npm like so:
+
+=>
+npm install --save-dev @testing-library/react
+or
+
+1)npm i -D @testing-library/react
+
+2)npm i -D jest
+
+3) we are using jest along with babel:
+https://jestjs.io/docs/getting-started
+
+npm install --save-dev babel-jest @babel/core @babel/preset-env
+
+4) Configure Babel to target your current version of Node by 
+creating a babel.config.js file in the root of your project:
+
+babel.config.js
+module.exports = {
+  presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
+};
+
+-------------babel configuration done------------------------------------
+
+
+
+For large scale applications, we require too many libraries from react.
+For bundle - using parcel - its a 
+routing - we use react-router-DOM
+testing - we are using react testing library
+state management - Redux
+
+or if we use create-react-app it comes with all the features in it for testing as well.
+
+react testing library - it needs jest
+Jest is a delightful JavaScript Testing Framework with a focus on simplicity.
+It works with projects using: Babel, TypeScript, Node, React, Angular, Vue and more!
+
+
+
+1)Manual testing - to check the functionality from our end manually.
+we have 100 of components and all are communicating with each other - it can create bug in any part of the
+page or component (we never know.)
+2)Writing test cases - code to test our application
+
+==========================================================================================================
+06-01-2024
+
+Episode-13 | Time for Test
+
+# Setting up Testing in our app
+- Install React Testing Library.
+- Install Jest
+- Install Babel dependencies (its required when we are using Jest along with Babel)
+- Configure Babel
+- Configure Parcel config file to disable default Babel transpilation
+- jest Configuration
+
+# Parcel uses Babel behind the scene
+- There can be conflict as parcel already has babel configuration in it  and now we are trying to configure Babel again separately.
+- We have to accomodate some changes in parcel configuration
+- parcel docs - search for jest and click on javascript - (https://parceljs.org/languages/javascript/#usage-with-other-tools) or on left navigation check javascript and on right click babel
+- Usage with other tools section - To disable Babel transpilation in Parcel, override the default Parcel config for JavaScript to exclude @parcel/transformer-babel.
+- create new file "parcelrc" and add code.
+
+Usage with other tools:
+
+While Parcel includes transpilation by default, you may still need to use Babel with other tools such as test runners like Jest, and linters like ESLint. If this is the case, you may not be able to completely remove your Babel config. You can make Parcel ignore your Babel config instead, which will have performance benefits and prevent the other issues described above.
+
+To disable Babel transpilation in Parcel, override the default Parcel config for JavaScript to exclude @parcel/transformer-babel.
+
+.parcelrc:
+{
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.{js,mjs,jsx,cjs,ts,tsx}": [
+      "@parcel/transformer-js",
+      "@parcel/transformer-react-refresh-wrap"
+    ]
+  }
+}
+This will allow other tools to continue using your Babel config, but disable Babel transpilation in Parcel.
+
+now the babel.config.js will be used in our application.
+
+-----------------------------------------------------------------
+How to run test cases:
+
+to run the application => npm run start
+to run the test cases => npm run test (check package.json file)
+scripts section => (test => jest)
+
+"scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html",
+    "test": "jest"
+  },
+
+  output:
+  No tests found, exiting with code 1
+
+  means you have successfully passed react testing libraries, jest, parcel , babel to make test cases work. :))
+
+  next step:
+  - jest Configuration
+  => npx jest --init (it will create jst.config.js file, we are using npx- we are just executing jest (not npm))
+
+Answer the below quesitions:
+
+The following questions will help Jest to create a suitable configuration for your project
+
+√ Would you like to use Typescript for the configuration file? ... no
+√ Choose the test environment that will be used for testing » jsdom (browser-like)
+√ Do you want Jest to add coverage reports? ... yes
+√ Which provider should be used to instrument code for coverage? » babel
+√ Automatically clear mock calls, instances, contexts and results before every test? ... yes
+
+Next step:- Install jsdom library 
+(Jest 28 - If you're using Jest 28 or later, jest-environment-jsdom package now must be installed separately.)
+
+=>npm install --save-dev jest-environment-jsdom
+(--save-dev //same as -D)
+
+Now how to check test cases are running or not:
+
+npm run test
+it will show:
+testMatch: **/__tests__/**/*.[jt]s?(x), **/?(*.)+(spec|test).[tj]s?(x) - 0 matches
+tension js or ts will get tested.
+"**/__tests__/" => means anwhere in your folder structu
+=> inside folder "__tests__", all the files with exre.
+or create files named "spec.js/ts" or"test.js/ts"
+"_ _" called as dunder tests, kind of reserved keyword used for naming folder so that no one can 
+accidently create folder structure like that.
+
+example: 
+Header.test.js or Header.test.ts
+-------------------------------------------------------------------------------
+
+Test case example:
+sum.test.js
+
+import { sum } from "../components/sum";
+
+test("Sum function should calculate the sum of two numbers", () =>{
+
+    const result = sum(3,4);
+
+    //Assertion - its not mandatory to write expect, but our code will always get passed
+    //even if you write empty test case it will get passed
+    //we should have a expectation to check
+    expect(result).toBe(5);
+})
+
+1st argument = what to do - code description
+2nd - callback function - code logic
+
+run => npm run test
+
+==========================================================================================================
+07-01-2024
+
+Episode-13 | Time for Test
+
+Unit testing in React: (testing 1 component)
+
+to render the UI on the page, first we need to render it on jsdom to test it.
+
+test case : check if contact us page is getting loaded
+
+we can use "render" or "screen" from "@testing-library/react"
+
+import { render, screen } from "@testing-library/react"
+import Contact from "../components/Contact"
+
+test('should load contact us component', () => {
+  render(<Contact />); //it will render on the jsdom
+
+  const heading = screen.getAllByRole("heading");
+  expect(heading).toBeInTheDocument();
+})
+
+
+error: Support for the experimental syntax 'jsx' isn't currently enabled (5:10):
+Add @babel/preset-react (https://github.com/babel/babel/tree/main/packages/babel-preset-react) 
+to the 'presets' section of your Babel config to enable transformation.
+
+Install @babel/preset-react to make JSX work in test cases.
+to run jsx code => npm i -D @babel/preset-react
+
+- Include @babel/preset-react inside my babel config.
+babel.config.js
+
+module.exports = {
+    presets: [
+      ['@babel/preset-env', {targets: {node: 'current'}}],
+      ['@babel/preset-react', {runtime: 'automatic'}], //add this line to convert JSX into plane HTML
+    ],
+  };
+
+
+//if we run the code again it will show an error:
+TypeError: expect(...).toBeInTheDocument is not a function 
+
+- Install @testing-library/jest-dom
+add on contact.test.js
+=>import "@testing-library/jest-dom"; // we dont have to import perticular thing, just import whole library
+
+import { render, screen } from "@testing-library/react";
+import Contact from "../Contact";
+import "@testing-library/jest-dom";
+
+test('should load contact us component', () => {
+  render(<Contact />); //it will render on the jsdom
+
+  const heading = screen.getByRole("heading");
+  expect(heading).toBeInTheDocument();
+});
+
+test('should load buton inside Contact us component', () => {
+  render(<Contact />); //it will render on the jsdom
+
+  const button = screen.getByText("Submit");
+  expect(button).toBeInTheDocument();
+})
+
+/////////////////////
+
+getByRole : different roles are defined by testing libraries. (used for single role)
+e.g. heading, textboxes, button
+
+getAllByRole: used for checking multiple roles on a webpage.
+
+when you do console.log :
+********this will return an object(react element, virtual dom obj, JSX, react fibernode )
+input will be shown in the form on an array.
+----------------------------------------------------
+Group of test cases: 
+To avoid to many test cases in a file, it will get difficult to manage such amount of test cases.
+divide different test cases in a single block called as "describe". write call such test cases inside it.
+-> you can have multiple describe test cases and describe inside describe also
+
+example:
+
+import { render, screen } from "@testing-library/react";
+import Contact from "../Contact";
+import "@testing-library/jest-dom";
+
+describe("Contatc Us Page Test Case", () => {
+  test('should load contact us component', () => {
+    render(<Contact />); //it will render on the jsdom
+  
+    const heading = screen.getByRole("heading");
+    expect(heading).toBeInTheDocument();
+  });
+  
+  test('should load submit word inside Contact us component', () => {
+    render(<Contact />); //it will render on the jsdom
+  
+    const button = screen.getByText("Submit");
+    expect(button).toBeInTheDocument();
+  })
+  
+  test('should load placeholder name inside Contact us component', () => {
+    render(<Contact />); //it will render on the jsdom
+  
+    const input = screen.getByPlaceholderText("name");
+    expect(input).toBeInTheDocument();
+  });
+  
+  test('should load 2 input boxes on the Contact us component', () => {
+    render(<Contact />); //it will render on the jsdom
+  
+    //querying
+    const inputBoxes = screen.getAllByRole("textbox");
+    // console.log(inputBoxes);
+    // console.log(inputBoxes[0]); // it will return a piece of JSX
+    //console.log(inputBoxes.length);
+    //expect(inputBoxes.length).not.toBe(3);
+    expect(inputBoxes.length).toBe(2);
+  });
+});
+
+----------------------------------------------------
+instead of "test" we can write "it" as well in test cases: (there is no difference between test and it)
+it is alias for test.
+
+  it('should load contact us component', () => {
+    render(<Contact />); //it will render on the jsdom
+  
+    const heading = screen.getByRole("heading");
+    expect(heading).toBeInTheDocument();
+  });
+
+
