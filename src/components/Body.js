@@ -107,23 +107,23 @@ const Body = () => {
 	if(onlineStatus === false) return <h1>Your Offline..Please check your network connection...!!!!</h1>;
 
 	return listOfRestaurants.length ===0 ? <Shimmer /> : (
-		<div className="body"> 
+		<div className="body text-center inline-block w-[100%] max-w-[1000px]"> 
 			<div className="filter p-4 m-4 flex">
 				<div className="search">
-					<input type="text" className="search-box border border-solid border-black" value={searchText}
+					<input data-testid="searchInput" type="text" className="search-box border border-solid border-black" value={searchText}
 					onChange={(e) => {
 						setSearchText(e.target.value);
 					}}/>
-					<button className="searchBtn px-4 py-2 bg-green-100 m-4" onClick={() => {
+					<button data-testid="searchBtn" className="searchBtn px-4 py-2 bg-green-100 m-4" onClick={() => {
 						const FilteredRestaurant = listOfRestaurants.filter((res) => 
 						res.info.name.toLowerCase().includes(searchText.toLowerCase()));
 						setFilteredRestaurant(FilteredRestaurant);
 					}}>Search</button>
 				</div>
 				<button className="filter-btn px-4 py-2 bg-green-100 m-4" onClick={()=> {
-					const FilteredList = listOfRestaurants.filter(res => res.avgRating > 4)
-					console.log(listOfRestaurants);
-					setListOfRestaurants(FilteredList);
+					const FilteredList = listOfRestaurants.filter(res => res.info.avgRating > 4.1)
+					//console.log(FilteredList);
+					setFilteredRestaurant(FilteredList);
 				}}>Top Rated Restaurants</button>
 				<div className="filter-btn px-4 py-2 m-4">
 				<label>User Name: </label>

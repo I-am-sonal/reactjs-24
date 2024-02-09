@@ -18,6 +18,10 @@ onClick={handleAddItem}
 onClick={() => handleAddItem(item)} // callback function
 onClick={handleAddItem(item)} // calling a function right a way
 
+test cases:
+write test case for username
+try to make 100% of coverage in your application
+
 ==========================================================================================================
 31-01-2024
 
@@ -1147,7 +1151,11 @@ getAllByRole: used for checking multiple roles on a webpage.
 when you do console.log :
 ********this will return an object(react element, virtual dom obj, JSX, react fibernode )
 input will be shown in the form on an array.
-----------------------------------------------------
+==========================================================================================================
+08-01-2024
+
+Episode-13 | Time for Test
+
 Group of test cases: 
 To avoid to many test cases in a file, it will get difficult to manage such amount of test cases.
 divide different test cases in a single block called as "describe". write call such test cases inside it.
@@ -1205,4 +1213,423 @@ it is alias for test.
     expect(heading).toBeInTheDocument();
   });
 
+----------------------------------------------------
+jsdom understands jsx or react code, but it cannot understand redux in our application
 
+test case: Header.test.js
+
+
+import { render } from "@testing-library/react";
+import Header from "../Header";
+
+it("should load Header component", () => {
+
+    render(<Header />);
+    
+    const Header = screen.getByRole("heading");
+
+    expect(heading).toBeInTheDocument();
+});
+
+it("should load Header component with a login button", () => {
+
+    render(<Header />);
+    
+    const LoginBtn = screen.getByText("LoginBtn");
+
+    expect(LoginBtn).toBeInTheDocument();
+});
+
+//////
+
+error:  could not find react-redux context value; please ensure the component is wrapped in a <Provider>
+
+solution: we need to provide redux store to it.
+
+
+import { render } from "@testing-library/react";
+import Header from "../Header";
+import { Provider } from "react-redux";
+import appStore from "../../utils/appStore";
+
+it("should load Header component", () => {
+
+    render(
+        <Provider store={appStore}>
+            <Header />
+        </Provider>
+    );
+    
+    const Header = screen.getByRole("heading");
+
+    expect(heading).toBeInTheDocument();
+});
+
+it("should load Header component with a login button", () => {
+
+    render(<Header />);
+    
+    const LoginBtn = screen.getByText("LoginBtn");
+
+    expect(LoginBtn).toBeInTheDocument();
+});
+
+error:     TypeError: Cannot destructure property 'basename' of 'React__namespace.useContext(...)' as it is null.                                        
+
+<link> component issue:
+its coming from react-router-dom, we need to provide router to it.
+import { BrowserRouter } from "react-router-dom";
+
+-------------------------------
+//const loginButton = screen.getByRole("button"); // its a good way than "getByText"
+    const loginButton = screen.getByText("Login", {name: "Login"}); // if there are multiple buttons, 
+    //we want specific button whos name is "Login"
+
+==========================================================================================================
+07-01-2024
+
+Episode-13 | Time for Test
+
+Regex - Regular expression
+
+FireEvent:
+
+we do not have to write all the words, use only one word = 
+
+    const cartItems = screen.getByText(/Cart/); 
+
+
+click event in test cases: FireEvent
+import { fireEvent, render, screen } from "@testing-library/react";
+
+Header.test.js
+
+
+import { fireEvent, render, screen } from "@testing-library/react";
+import Header from "../Header";
+import { Provider } from "react-redux";
+import appStore from "../../utils/appStore";
+import { BrowserRouter } from "react-router-dom";
+import "@testing-library/jest-dom";
+
+it('should render Header component with a login button', () => {
+    
+    render(
+        <BrowserRouter>
+            <Provider store={appStore}>
+                <Header />
+            </Provider>
+        </BrowserRouter>
+    );
+    
+    //const loginButton = screen.getByRole("button"); // its a good way than "getByText"
+    const loginButton = screen.getByText("Login", {name: "Login"}); // if there are multiple buttons, we want specific button whos name is "Login"
+
+    expect(loginButton).toBeInTheDocument();
+});
+
+it('should render Cart in Header component', () => {
+    
+    render(
+        <BrowserRouter>
+            <Provider store={appStore}>
+                <Header />
+            </Provider>
+        </BrowserRouter>
+    );
+    
+    const cartItems = screen.getByText("Cart - (0 items)"); 
+
+    expect(cartItems).toBeInTheDocument();
+});
+
+it('should render Cart word in Header component', () => {
+    
+    render(
+        <BrowserRouter>
+            <Provider store={appStore}>
+                <Header />
+            </Provider>
+        </BrowserRouter>
+    );
+    
+    const cart = screen.getByText(/Cart/); 
+
+    expect(cart).toBeInTheDocument();
+});
+
+it('should change Login button to Logout on click', () => {
+    
+    render(
+        <BrowserRouter>
+            <Provider store={appStore}>
+                <Header />
+            </Provider>
+        </BrowserRouter>
+    );
+    
+    const loginButton = screen.getByText("Login", {name: "Login"});
+
+    fireEvent.click(loginButton);
+
+    const logoutButton = screen.getByText("Logout", {name: "Logout"});
+
+
+    expect(logoutButton).toBeInTheDocument();
+    
+});
+
+-------------------------------------------------------------------------------------
+Unit testing of Props:
+
+we need to create mock data for it and pass it as props.
+
+it("should render Restaurant Card component", () => {
+    render(<RestaurantCard resData={MOCK_DATA}/>);
+
+    const name = screen.getByText("Chinese Wok");
+
+    expect(name).toBeInTheDocument();
+});
+
+-------------------------------------------------------------------------------------
+Unit testing of HOC (Higher order components):
+
+RestaurantCard.test.js
+import { render, screen } from "@testing-library/react";
+import RestaurantCard from "../RestaurantCard";
+import MOCK_DATA from "../mocks/resCardMock.json";
+import "@testing-library/jest-dom";
+import { withPromotedLabel } from "../RestaurantCard";
+
+
+it("should render Restaurant Card component", () => {
+    render(<RestaurantCard resData={MOCK_DATA}/>);
+
+    const name = screen.getByText("La Pino'z Pizza");
+
+    expect(name).toBeInTheDocument();
+});
+
+it("should render Restaurant Card component with Promoted label", () => {
+
+    const Promoted = withPromotedLabel(RestaurantCard);
+    render(
+            <Promoted resData={MOCK_DATA}/>
+    );
+
+    const name = screen.getByText("Veg");
+
+    expect(name).toBeInTheDocument();
+});
+==========================================================================================================
+To run the test cases automatically: npm run watch-test
+HMR: 
+package.json
+"scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html",
+    "test": "jest",
+    "watch-test": "jest --watch"
+  },
+==========================================================================================================
+09-01-2024
+
+Episode-13 | Time for Test
+
+fetch is not defined:
+
+the fetch method with all the code present on the page is rendering on jsdom(browser like and not a browser) 
+and not on browser dom.
+it does not have all the superpowers of browser.jest does not understand the fetch() method
+
+and fetch() is superpowers of browser.
+
+mock function (dummy fetch function) for fetch() needs to be written.
+
+We cannot make actual API call, because its not running on actual broswer, 
+so it will not talk to real world. internet is not required to run the test cases.
+
+
+global.fetch = jest.fn(() => {
+    return Promise.resolve({
+        json: () => {
+            return Promise.resolve(MOCK_DATA);
+        }
+    })
+})
+
+if you are having async operattion , state changes in app:
+
+use act function for it: act function return a Promise
+import { act } from "react-dom/test-utils";
+
+import { render, screen } from "@testing-library/react";
+import Body from "../Body";
+import "@testing-library/jest-dom";
+import MOCK_DATA from "../mocks/mockResListData.json";
+import { act } from "react-dom/test-utils";
+import { BrowserRouter } from "react-router-dom";
+
+global.fetch = jest.fn(() => {
+    return Promise.resolve({
+        json: () => {
+            return Promise.resolve(MOCK_DATA);
+        }
+    })
+})
+
+it("Should render Body component with Search button", async () => {
+
+    await act(async () => 
+    render(
+        <BrowserRouter>
+            <Body />
+        </BrowserRouter>
+    ));
+
+    const searchBtn = screen.getByRole("button", {name: "Search"});
+
+    expect(searchBtn).toBeInTheDocument();
+});
+
+------------------------------------------------------------------------
+getByTestId:
+
+in jsx add: 
+Body.js
+<button data-testid="searchInput">Search</button>
+
+Search.test.js
+it("Should render Body component with Search button using testid", async () => {
+
+    await act(async () => 
+    render(
+        <BrowserRouter>
+            <Body />
+        </BrowserRouter>
+    ));
+
+    const searchBtn = screen.getByTestId("searchInput");
+
+    expect(searchBtn).toBeInTheDocument();
+});
+------------------------------------------------------------------------
+
+FireEvent: onchange example:
+
+Search.test.js
+
+import { fireEvent, getAllByTestId, render, screen } from "@testing-library/react";
+import Body from "../Body";
+import "@testing-library/jest-dom";
+import MOCK_DATA from "../mocks/mockResListData.json";
+import { act } from "react-dom/test-utils";
+import { BrowserRouter } from "react-router-dom";
+
+global.fetch = jest.fn(() => {
+    return Promise.resolve({
+        json: () => {
+            return Promise.resolve(MOCK_DATA);
+        }
+    })
+})
+
+it("Should render Body component with Search button", async () => {
+
+    await act(async () => 
+    render(
+        <BrowserRouter>
+            <Body />
+        </BrowserRouter>
+    ));
+
+    const searchBtn = screen.getByRole("button", {name: "Search"});
+
+    expect(searchBtn).toBeInTheDocument();
+});
+
+it("Should render Body component with Search button using testid", async () => {
+
+    await act(async () => 
+    render(
+        <BrowserRouter>
+            <Body />
+        </BrowserRouter>
+    ));
+
+    const searchBtn = screen.getByTestId("searchBtn");
+
+    expect(searchBtn).toBeInTheDocument();
+});
+
+it("Should Search res List for Burger text input", async () => {
+
+    await act(async () => 
+    render(
+        <BrowserRouter>
+            <Body />
+        </BrowserRouter>
+    ));
+
+    const cardsBeforeSearch = screen.getAllByTestId("resCard");
+    expect(cardsBeforeSearch.length).toBe(9);
+
+    const searchBtn = screen.getByRole("button", {name: "Search"});
+
+    const searchInput = screen.getByTestId("searchInput");
+
+    fireEvent.change(searchInput, { target: { value: "Burger"} });
+
+    fireEvent.click(searchBtn);
+
+    const cardsAfterSearch = screen.getAllByTestId("resCard");
+
+    expect(cardsAfterSearch.length).toBe(1);
+});
+
+it("Should filter Top Rated Restaurants ", async () => {
+
+    await act(async () => 
+    render(
+        <BrowserRouter>
+            <Body />
+        </BrowserRouter>
+    ));
+
+    const cardsBeforeFilter = screen.getAllByTestId("resCard");
+
+    expect(cardsBeforeFilter.length).toBe(9);
+
+    const TopRatedRestaurantBtn = screen.getByRole("button", {name: "Top Rated Restaurants"});
+
+    fireEvent.click(TopRatedRestaurantBtn);
+
+    const cardsAfterFilter = screen.getAllByTestId('resCard');
+
+    expect(cardsAfterFilter.length).toBe(5);
+});
+
+---------------------------------------------------------------------------
+beforeAll() and beforeEach() test cases:
+
+describe("Contatc Us Page Test Case", () => {
+
+  beforeAll(() => {
+
+    //it will run before all test cases.
+    console.log("Before All");
+  })
+
+  beforeEach(() => {
+
+    //it will run before each test case.
+    console.log("Before Each");
+  })
+
+});
+---------------------------------------------------------------------------
+from the test case output table:
+if you wants to check uncovered files..
+=>coverage folder => Icov-report => index.html -> right click (open with live server)
+it will show details of the exact places which is tested or not tested line by line 

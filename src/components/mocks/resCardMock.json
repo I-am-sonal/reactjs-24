@@ -1,0 +1,90 @@
+{
+    "info": {
+        "id": "484364",
+        "name": "La Pino'z Pizza",
+        "cloudinaryImageId": "ohgpo6qmmrhyx0r6ffdp",
+        "locality": "CORNELION BUILDING",
+        "areaName": "Mahalaxmi Malabar Hill",
+        "costForTwo": "₹400 for two",
+        "cuisines": [
+            "Pizzas",
+            "Pastas",
+            "Italian",
+            "Desserts",
+            "Beverages"
+        ],
+        "avgRating": 4.1,
+        "veg": true,
+        "parentId": "4961",
+        "avgRatingString": "4.1",
+        "totalRatingsString": "1K+",
+        "sla": {
+            "deliveryTime": 19,
+            "lastMileTravel": 1.5,
+            "serviceability": "SERVICEABLE",
+            "slaString": "15-20 mins",
+            "lastMileTravelString": "1.5 km",
+            "iconType": "ICON_TYPE_EMPTY"
+        },
+        "availability": {
+            "nextCloseTime": "2024-02-09 04:00:00",
+            "opened": true
+        },
+        "badges": {
+            "imageBadges": [
+                {
+                    "imageId": "v1695133679/badges/Pure_Veg111.png",
+                    "description": "pureveg"
+                }
+            ]
+        },
+        "isOpen": true,
+        "type": "F",
+        "badgesV2": {
+            "entityBadges": {
+                "imageBased": {
+                    "badgeObject": [
+                        {
+                            "attributes": {
+                                "description": "pureveg",
+                                "imageId": "v1695133679/badges/Pure_Veg111.png"
+                            }
+                        }
+                    ]
+                },
+                "textBased": {},
+                "textExtendedBadges": {}
+            }
+        },
+        "aggregatedDiscountInfoV3": {
+            "header": "50% OFF",
+            "subHeader": "UPTO ₹100"
+        },
+        "orderabilityCommunication": {
+            "title": {},
+            "subTitle": {},
+            "message": {},
+            "customIcon": {}
+        },
+        "differentiatedUi": {
+            "displayType": "ADS_UI_DISPLAY_TYPE_ENUM_DEFAULT",
+            "differentiatedUiMediaDetails": {
+                "mediaType": "ADS_MEDIA_ENUM_IMAGE",
+                "lottie": {},
+                "video": {}
+            }
+        },
+        "reviewsSummary": {},
+        "displayType": "RESTAURANT_DISPLAY_TYPE_DEFAULT",
+        "restaurantOfferPresentationInfo": {}
+    },
+    "analytics": {
+        "context": "seo-data-6e646892-83a1-44da-9f32-10fe756f1c6e"
+    },
+    "cta": {
+        "link": "https://www.swiggy.com/restaurants/la-pinoz-pizza-cornelion-building-mahalaxmi-malabar-hill-mumbai-484364",
+        "text": "RESTAURANT_MENU",
+        "type": "WEBLINK"
+    },
+    "widgetId": "collectionV5RestaurantListWidget_SimRestoRelevance_food_seo"
+}

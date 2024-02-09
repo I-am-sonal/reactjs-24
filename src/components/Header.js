@@ -25,7 +25,7 @@ const Header = () => {
     const cartItems = useSelector((store) => store.cart.items);
     //console.log(cartItems);
     return (
-        <div className="header flex justify-between">
+        <div className="flex justify-between">
             <div className="logo-container">
                 <img className="w-52" src={IMAGE_URL} />
             </div>
@@ -36,7 +36,7 @@ const Header = () => {
                     <li className="px-4"><Link to="/about">About Us</Link></li>
                     <li className="px-4"><Link to="/contact">Contact Us</Link></li>
                     <li className="px-4"><Link to="/grocery">Grocery</Link></li>
-                    <li className="px-4"><Link to="/cart">Cart - ({cartItems.length} items)</Link></li>
+                    <li className="px-4 cart"><Link to="/cart">Cart - ({cartItems.length} items)</Link></li>
                     <li className="px-4 font-bold">{loggedInUser}</li>
                     <button className="LoginBtn" onClick={() => {
                         btnNameReact === "Login" ? useBtnNameReact("Logout") : useBtnNameReact("Login")
